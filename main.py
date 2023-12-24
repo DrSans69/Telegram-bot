@@ -1,4 +1,6 @@
 import asyncio
+import re
+
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
@@ -11,12 +13,14 @@ with open("TOKEN", "r") as f:
 
 
 dp = Dispatcher()
-log = print
 
 
 async def main() -> None:
     global bot
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+
+    print("Bot started")
+
     await dp.start_polling(bot)
 
 
@@ -58,11 +62,20 @@ async def command_help_handelr(message: Message) -> None:
 
 
 @dp.message()
-async def echo_response(message: Message) -> None:
-    try:
-        await message.send_copy(message.chat.id)
-    except:
-        await message.answer("На жаль я не можу цього відправити")
+async def handler(message: Message) -> None:
+    text = message.text
+    if not text:
+        await command_help_handelr(message)
+
+    olx_pattern = re.compile(r'(?:olx.ua).+(?:obyavlenie).+')
+    links = olx_pattern.findall(text)
+
+    if links:
+        print("Найденные ссылки на olx.ua:")
+        for link in links:
+            print(link)
+    else:
+        await command_help_handelr(message)
 
 
 async def print_bot(message: Message, s: list) -> None:
