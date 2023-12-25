@@ -1,6 +1,6 @@
 import asyncio
 import re
-
+import subprocess
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
@@ -8,6 +8,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, Chat
 # import aiogram.utils.markdown as text_decorate
 
+PARSER = "parser.js"
 with open("TOKEN", "r") as f:
     TOKEN = f.read()
 
@@ -71,11 +72,14 @@ async def handler(message: Message) -> None:
     links = olx_pattern.findall(text)
 
     if links:
-        print("Найденные ссылки на olx.ua:")
         for link in links:
-            print(link)
+            result = parser(link)
     else:
         await command_help_handelr(message)
+
+
+async def parser(link: str):
+    subprocess.run(["node", PARSER, link])
 
 
 async def print_bot(message: Message, s: list) -> None:
